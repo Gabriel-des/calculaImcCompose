@@ -11,28 +11,32 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pastasdevelop.calculaimccompose.ui.theme.CalculaImcComposeTheme
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.pastasdevelop.calculaimccompose.entity.ImcRecord
 import com.pastasdevelop.calculaimccompose.model.ImcViewModel
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,10 +44,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalculaImcComposeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    CalculaIMCScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val navController = rememberNavController()
+
+                NavHost(navController = navController, startDestination = "home")
+                {
+                    composable("home") {
+                        CalculaIMCScreen(
+                            onNavigateToDeveloper = {
+                                navController.navigate("developer")
+                            }
+                        )
+                    }
+                    composable("developer") {
+                        DeveloperScreen()
+                    }
                 }
             }
         }
@@ -53,12 +67,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CalculaIMCScreen(
     modifier: Modifier = Modifier,
-    viewModel: ImcViewModel = viewModel()
+    viewModel: ImcViewModel = viewModel(),
+    onNavigateToDeveloper: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
 
     Column (
-        modifier = modifier
+        modifier = modifier.padding(top = 32.dp)
     ) {
         OutlinedTextField(
             value = viewModel.peso,
@@ -98,10 +113,67 @@ fun CalculaIMCScreen(
         )
 
         Button(
-            onClick = {  },
-            modifier = Modifier.fillMaxWidth()
+            onClick = onNavigateToDeveloper,
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
         ) {
             Text(text = "Sobre o desenvolvedor")
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        Text(
+            text = "Histórico de cálculos:",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp)
+        )
+
+        PanelHistorico(viewModel.historico)
+    }
+}
+
+@Composable
+fun PanelHistorico(historico: List<ImcRecord>) {
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(historico) { registro ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Peso: ${registro.peso} kg",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = "Peso: ${registro.altura} m",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    Text(
+                        text = "IMC: ${registro.imc}",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
         }
     }
 }
