@@ -31,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pastasdevelop.calculaimccompose.model.ImcViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,36 +51,18 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CalculaIMCScreen(modifier: Modifier = Modifier) {
-    var peso by rememberSaveable { mutableStateOf("") }
-    var altura by rememberSaveable { mutableStateOf("") }
-    var resultado by rememberSaveable { mutableStateOf("0.00") }
-
+fun CalculaIMCScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ImcViewModel = viewModel()
+) {
     val focusRequester = remember { FocusRequester() }
-
-    val calculaIMC = {
-        val pesoDouble = peso.toDoubleOrNull() ?: 0.0
-        val alturaDouble = altura.toDoubleOrNull() ?: 0.0
-
-        if (pesoDouble != 0.0 || alturaDouble != 0.0) {
-            val imc = pesoDouble / (alturaDouble * alturaDouble)
-            resultado = "%.2f".format(imc)
-        }
-    }
-
-    val limparTela = {
-        peso = ""
-        altura = ""
-        resultado = "0.00"
-        focusRequester.requestFocus()
-    }
 
     Column (
         modifier = modifier
     ) {
         OutlinedTextField(
-            value = peso,
-            onValueChange = { peso = it },
+            value = viewModel.peso,
+            onValueChange = { viewModel.onPesoChange(it) },
             label = {
                 Text("Peso em kg")
             },
@@ -90,8 +74,8 @@ fun CalculaIMCScreen(modifier: Modifier = Modifier) {
         )
 
         OutlinedTextField(
-            value = altura,
-            onValueChange = { altura = it },
+            value = viewModel.altura,
+            onValueChange = { viewModel.onAlturaChange(it) },
             label = {
                 Text("Altura em m")
             },
@@ -101,11 +85,17 @@ fun CalculaIMCScreen(modifier: Modifier = Modifier) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
-        if (resultado != "0.00") {
-            panelResult(resultado)
+        if (viewModel.resultado != "0.00") {
+            panelResult(viewModel.resultado)
         }
 
-        PanelButton(calculaIMC, limparTela)
+        PanelButton(
+            { viewModel.calcularImc() },
+            {
+                viewModel.limparTela()
+                focusRequester.requestFocus()
+            }
+        )
     }
 }
 

@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.pastasdevelop.calculaimccompose"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.pastasdevelop.calculaimccompose"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
