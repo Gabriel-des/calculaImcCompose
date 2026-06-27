@@ -96,6 +96,13 @@ fun CalculaIMCScreen(
                 focusRequester.requestFocus()
             }
         )
+
+        Button(
+            onClick = {  },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Sobre o desenvolvedor")
+        }
     }
 }
 
@@ -148,5 +155,20 @@ private fun PanelButton (
         ) {
             Text(text = "Limpar")
         }
+    }
+}
+
+@Composable
+fun DeveloperScreen() {
+    Column(
+        Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Desenvolvido por:")
+        Text(
+            text = "Pastas",
+            style = MaterialTheme.typography.headlineMedium
+        )
     }
 }
